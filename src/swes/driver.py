@@ -9,6 +9,7 @@ from swes.grid import Grid
 from swes.halo import update_halo_points
 from swes.initialization import get_initial_state
 from swes.orography import Orography
+from swes.output import NetCDFWriter
 from swes.solver import LaxWendroff
 from swes.utils import get_time_string
 
@@ -40,6 +41,8 @@ class Driver:
                 self.check_points.append(n * config.print_interval)
                 n += 1
         self.check_points.append(config.final_time)
+
+        self.writer = NetCDFWriter(config)
 
     def get_timestep(self, state: State, t: float_type) -> tuple[float_type, float_type]:
         g = self.config.planet_constants.g
@@ -76,6 +79,7 @@ class Driver:
 
         print(f"Starting simulation '{self.config.use_case}'")
         print(f"Simulation time: {get_time_string(t)}:\n{state}")
+        self.writer(state, t)
 
         while t < self.config.final_time:
             dt, t_new = self.get_timestep(state, t)
@@ -89,5 +93,6 @@ class Driver:
             t = t_new
             if t in self.check_points:
                 print(f"Simulation time: {get_time_string(t)}:\n{state}")
+                self.writer(state, t)
 
         return state

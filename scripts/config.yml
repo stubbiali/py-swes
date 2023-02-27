@@ -8,6 +8,7 @@ initially_geostrophic: False
 enable_diffusion: True
 
 cfl: 0.9
-final_time: 86400  #1209600  # 14 days
+final_time: 1209600  # 14 days
 
-print_interval: 3600  # 1 hour
+print_interval: 43200  # 1 hour
+output_directory: ../output/williamson-6
