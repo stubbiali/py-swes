@@ -1,0 +1,13 @@
+nx: 360
+ny: 180
+
+planet: earth
+use_case: williamson_6
+initially_geostrophic: False
+
+enable_diffusion: True
+
+cfl: 0.9
+final_time: 86400  #1209600  # 14 days
+
+print_interval: 3600  # 1 hour
