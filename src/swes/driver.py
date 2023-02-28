@@ -14,11 +14,25 @@ from swes.solver import get_solver
 from swes.utils import get_time_string
 
 if TYPE_CHECKING:
+    from typing import Optional, Union
+
     from swes.config import Config
+    from swes.diffusion import Diffusion
+    from swes.solver import LaxWendroff, LaxWendroffAdvectionOnly
     from swes.state import State
 
 
 class Driver:
+    check_points: list[float]
+    config: Config
+    diffusion: Optional[Diffusion]
+    dx_min: float
+    dy_min: float
+    grid: Grid
+    orography: Orography
+    solver: Union[LaxWendroff, LaxWendroffAdvectionOnly]
+    writer: NetCDFWriter
+
     def __init__(self, config: Config) -> None:
         self.config = config
 

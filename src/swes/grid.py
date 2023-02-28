@@ -7,10 +7,38 @@ from typing import TYPE_CHECKING
 from swes.utils import to_gt4py
 
 if TYPE_CHECKING:
+    from swes.build_config import float_type
     from swes.config import Config
 
 
 class Grid:
+    a: float_type
+    c: np.ndarray
+    c_y: np.ndarray
+    dphi: float
+    dtheta: float
+    dx: np.ndarray
+    dy1: np.ndarray
+    dy: np.ndarray
+    f: np.ndarray
+    hx: int
+    hy: int
+    ni: int
+    nj: int
+    nx: int
+    ny: int
+    omega: float_type
+    phi: np.ndarray
+    phic: np.ndarray
+    tg: np.ndarray
+    tg_x: np.ndarray
+    tg_y: np.ndarray
+    theta: np.ndarray
+    thetac: np.ndarray
+    x: np.ndarray
+    y1: np.ndarray
+    y: np.ndarray
+
     def __init__(self, config: Config) -> None:
         # longitude
         self.nx = config.nx

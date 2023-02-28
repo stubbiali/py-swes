@@ -17,7 +17,7 @@ def update_halo_points_field(grid: Grid, field: np.ndarray) -> None:
     # cross-pole conditions along y
     for j in range(grid.hy):
         field[:, j] = field[:, 2 * grid.hy - j]
-        field[:, -(j + 1)] = field[:,  -2 * grid.hy - 1 + j]
+        field[:, -(j + 1)] = field[:, -2 * grid.hy - 1 + j]
 
 
 def update_halo_points(state: State) -> None:

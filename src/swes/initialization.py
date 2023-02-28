@@ -4,7 +4,6 @@ import math
 import numpy as np
 from typing import TYPE_CHECKING
 
-from swes.config import UseCase
 from swes.halo import update_halo_points
 from swes.pole import get_pole_treatment
 from swes.state import State
@@ -207,7 +206,7 @@ def get_initial_state(
         state.u[:, j] = state.u[:, j + 1]
         state.v[:, j] = state.v[:, j + 1]
 
-        if config.use_case == UseCase.IDEALIZED_JET:
+        if config.use_case == "idealized_jet":
             # prevent wind from flowing too fast
             u, v = to_numpy(state.u), to_numpy(state.v)
             wmax = 2000

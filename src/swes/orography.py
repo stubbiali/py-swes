@@ -6,10 +6,14 @@ from swes.halo import update_halo_points_field
 from swes.utils import zeros
 
 if TYPE_CHECKING:
+    import numpy as np
+
     from swes.grid import Grid
 
 
 class Orography:
+    hs: np.ndarray
+
     def __init__(self, grid: Grid) -> None:
         self.hs = zeros(grid.ni, grid.nj)
 

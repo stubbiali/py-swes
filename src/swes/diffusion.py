@@ -7,6 +7,9 @@ from swes.build_config import float_type
 from swes.utils import GT_FIELD, stencil, zeros
 
 if TYPE_CHECKING:
+    import numpy as np
+    from typing import Optional
+
     from swes.config import Config
     from swes.grid import Grid
     from swes.state import State
@@ -69,6 +72,14 @@ def diffusion(
 
 
 class Diffusion:
+    ax: np.ndarray
+    ay: np.ndarray
+    bx: np.ndarray
+    by: np.ndarray
+    cx: np.ndarray
+    cy: np.ndarray
+    nu: float_type
+
     def __init__(self, config: Config, grid: Grid) -> None:
         if grid.hx < 2 or grid.hy < 1:
             raise RuntimeError(
@@ -127,7 +138,7 @@ class Diffusion:
         )
 
 
-def get_diffusion(config: Config, grid: Grid):
+def get_diffusion(config: Config, grid: Grid) -> Optional[Diffusion]:
     if config.enable_diffusion:
         return Diffusion(config, grid)
     else:

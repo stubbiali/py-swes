@@ -20,6 +20,17 @@ def diagnostics(grid: Grid, field: np.ndarray, field_name: str) -> str:
 
 
 class State:
+    grid: Grid
+    h_new: np.ndarray
+    u: np.ndarray
+    u_new: np.ndarray
+    u_x: np.ndarray
+    u_y: np.ndarray
+    v: np.ndarray
+    v_new: np.ndarray
+    v_x: np.ndarray
+    v_y: np.ndarray
+
     def __init__(self, grid: Grid) -> None:
         self.grid = grid
 

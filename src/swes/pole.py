@@ -6,12 +6,23 @@ from typing import TYPE_CHECKING
 from swes.utils import to_numpy
 
 if TYPE_CHECKING:
+    from typing import Optional, Union
+
     from swes.build_config import float_type
     from swes.config import Config
     from swes.state import State
 
 
 class PoleTreatmentAdvectionOnly:
+    dt_old: Optional[float_type]
+    dxp: float
+    h_north: float_type
+    h_north_old: float_type
+    h_south: float_type
+    h_south_old: float_type
+    m_north: float
+    m_south: float
+
     def __init__(self, config: Config, state: State) -> None:
         # compute longitudinal increment
         self.dxp = (
@@ -71,6 +82,28 @@ class PoleTreatmentAdvectionOnly:
 
 
 class PoleTreatment:
+    dt_old: Optional[float_type]
+    dxp: float
+    g: float_type
+    h_north: float
+    h_north_old: float
+    h_south: float
+    h_south_old: float
+    hu_north: float
+    hu_north_old: float
+    hu_south: float
+    hu_south_old: float
+    hv_north: float
+    hv_north_old: float
+    hv_south: float
+    hv_south_old: float
+    m_north: float
+    m_south: float
+    u_north: float
+    u_south: float
+    v_north: float
+    v_south: float
+
     def __init__(self, config: Config, state: State) -> None:
         # compute longitudinal increment
         self.dxp = (
@@ -251,7 +284,9 @@ class PoleTreatment:
         self.hv_south = hv_south_new
 
 
-def get_pole_treatment(config: Config, state: State):
+def get_pole_treatment(
+    config: Config, state: State
+) -> Union[PoleTreatment, PoleTreatmentAdvectionOnly]:
     if config.advection_only:
         return PoleTreatmentAdvectionOnly(config, state)
     else:

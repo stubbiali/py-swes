@@ -6,6 +6,9 @@ from swes.build_config import float_type
 from swes.utils import GT_FIELD, stencil, zeros
 
 if TYPE_CHECKING:
+    import numpy as np
+    from typing import Union
+
     from swes.config import Config
     from swes.grid import Grid
     from swes.orography import Orography
@@ -49,6 +52,9 @@ def advection(
 
 
 class LaxWendroffAdvectionOnly:
+    dxc: np.ndarray
+    dy1c: np.ndarray
+
     def __init__(self, grid: Grid) -> None:
         # "centred" Cartesian increments
         self.dxc = zeros(grid.ni, grid.nj)
@@ -257,6 +263,13 @@ def lax_wendroff(
 
 
 class LaxWendroff:
+    a: float_type
+    dxc: np.ndarray
+    dy1c: np.ndarray
+    dyc: np.ndarray
+    g: float_type
+    hs: np.ndarray
+
     def __init__(self, config: Config, grid: Grid, orography: Orography) -> None:
         # "centred" Cartesian increments
         self.dxc = zeros(grid.ni, grid.nj)
@@ -301,7 +314,9 @@ class LaxWendroff:
         )
 
 
-def get_solver(config: Config, grid: Grid, orography: Orography):
+def get_solver(
+    config: Config, grid: Grid, orography: Orography
+) -> Union[LaxWendroff, LaxWendroffAdvectionOnly]:
     if config.advection_only:
         return LaxWendroffAdvectionOnly(grid)
     else:

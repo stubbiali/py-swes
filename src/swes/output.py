@@ -7,11 +7,16 @@ from typing import TYPE_CHECKING
 from swes.build_config import float_type
 
 if TYPE_CHECKING:
+    from typing import Optional
+
     from swes.config import Config
     from swes.state import State
 
 
 class NetCDFWriter:
+    counter: int
+    output_directory: Optional[str]
+
     def __init__(self, config: Config) -> None:
         self.output_directory = config.output_directory
         self.counter = 0
