@@ -1,0 +1,20 @@
+nx: 360
+ny: 180
+
+hx: 1
+hy: 0
+
+planet: earth
+use_case: williamson_1
+init_args:
+  alpha: 1.57079632679  # pi/2
+initially_geostrophic: False
+
+advection_only: True
+enable_diffusion: False
+
+cfl: 0.9
+final_time: 1036800  # 12 days
+
+print_interval: 21600  # 6 hours
+output_directory: ../output/williamson-1

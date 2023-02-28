@@ -8,11 +8,11 @@ import numpy as np
 from swes.utils import get_time_string
 
 color_levels_number = 19
-colormap = "Spectral"
+colormap = "Greens"  # "Spectral"
 field_name = "h"
 figsize = (9, 6)
-filename = "../output/williamson-6/data_28.nc"
-filename_ref = "../output/williamson-6/data_0.nc"
+filename = "../output/williamson-1/data_24.nc"
+filename_ref = "../output/williamson-1/data_0.nc"
 
 
 EXTENDED_NAMES = {

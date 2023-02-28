@@ -4,7 +4,7 @@ from swes.driver import Driver
 
 
 def main():
-    config = Config.from_yaml("config.yml")
+    config = Config.from_yaml("../config/williamson_1.yml")
     driver = Driver(config)
     driver.run()
 
