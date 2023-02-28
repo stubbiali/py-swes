@@ -11,6 +11,65 @@ if TYPE_CHECKING:
     from swes.state import State
 
 
+class PoleTreatmentAdvectionOnly:
+    def __init__(self, config: Config, state: State) -> None:
+        # compute longitudinal increment
+        self.dxp = (
+            2
+            * config.planet_constants.a
+            * np.sin(state.grid.dtheta)
+            / (1 + np.cos(state.grid.dtheta))
+        )
+
+        # compute map factor at the poles
+        js, jn = state.grid.hy, state.grid.hy + state.grid.ny - 1
+        self.m_north = 2 / (1 + np.sin(state.grid.thetac[jn]))
+        self.m_south = 2 / (1 - np.sin(state.grid.thetac[js]))
+
+        # set height at the poles
+        ib, ie = state.grid.hx, state.grid.hx + state.grid.nx
+        state.h[:, jn] = np.sum(state.h[ib:ie, jn]) / state.grid.nx
+        state.h[:, js] = np.sum(state.h[ib:ie, js]) / state.grid.nx
+        self.h_north = state.h[0, jn]
+        self.h_south = state.h[0, js]
+
+        # auxiliary variables
+        self.dt_old = None
+        self.h_north_old = self.h_north
+        self.h_south_old = self.h_south
+
+    def __call__(self, state: State, dt: float_type) -> None:
+        if self.dt_old is None:
+            self.dt_old = dt
+
+        # shortcuts
+        ib, ie = state.grid.hx, state.grid.hx + state.grid.nx
+        js, jn = state.grid.hy, state.grid.hy + state.grid.ny - 1
+
+        # north pole treatment
+        h_north_new = self.h_north_old + (dt + self.dt_old) * 2 / (
+            self.dxp * self.m_north * state.grid.nx
+        ) * np.sum(state.h[ib:ie, jn - 1] * state.v[ib:ie, jn - 1])
+
+        # south pole treatment
+        h_south_new = self.h_south_old - (dt + self.dt_old) * 2 / (
+            self.dxp * self.m_south * state.grid.nx
+        ) * np.sum(state.h[ib:ie, js + 1] * state.v[ib:ie, js + 1])
+
+        # set solution at the poles
+        state.h[:, jn] = h_north_new
+        state.h[:, js] = h_south_new
+
+        # update auxiliary variables representing "old" solution
+        self.dt_old = dt
+        self.h_north_old = self.h_north
+        self.h_south_old = self.h_south
+
+        # update auxiliary variables representing "latest" solution
+        self.h_north = h_north_new
+        self.h_south = h_south_new
+
+
 class PoleTreatment:
     def __init__(self, config: Config, state: State) -> None:
         # compute longitudinal increment
@@ -86,28 +145,28 @@ class PoleTreatment:
 
         # north pole treatment
         h_north_new = self.h_north_old + (dt + dt_old) * 2 / (dxp * m_north * nx) * np.sum(
-            h[ib:ie, jn-1] * v[ib:ie, jn-1]
+            h[ib:ie, jn - 1] * v[ib:ie, jn - 1]
         )
         au = (
             -2
             / (dxp * m_north * nx)
             * np.sum(
-                h[ib:ie, jn-1]
-                * (u[ib:ie, jn-1] * np.sin(phic[ib:ie]) + v[ib:ie, jn-1] * np.cos(phic[ib:ie]))
-                * v[ib:ie, jn-1]
+                h[ib:ie, jn - 1]
+                * (u[ib:ie, jn - 1] * np.sin(phic[ib:ie]) + v[ib:ie, jn - 1] * np.cos(phic[ib:ie]))
+                * v[ib:ie, jn - 1]
             )
         )
-        bu = -self.g / (dxp * nx) * np.sum((h[ib:ie, jn-1] ** 2) * np.cos(phic[ib:ie]))
+        bu = -self.g / (dxp * nx) * np.sum((h[ib:ie, jn - 1] ** 2) * np.cos(phic[ib:ie]))
         av = (
             -2
             / (dxp * m_north * nx)
             * np.sum(
-                h[ib:ie, jn-1]
-                * (-u[ib:ie, jn-1] * np.cos(phic[ib:ie]) + v[ib:ie, jn-1] * np.sin(phic[ib:ie]))
-                * v[ib:ie, jn-1]
+                h[ib:ie, jn - 1]
+                * (-u[ib:ie, jn - 1] * np.cos(phic[ib:ie]) + v[ib:ie, jn - 1] * np.sin(phic[ib:ie]))
+                * v[ib:ie, jn - 1]
             )
         )
-        bv = -self.g / (dxp * nx) * np.sum((h[ib:ie, jn-1] ** 2) * np.sin(phic[ib:ie]))
+        bv = -self.g / (dxp * nx) * np.sum((h[ib:ie, jn - 1] ** 2) * np.sin(phic[ib:ie]))
         fp = state.grid.f[0, jn]
         hu_north_new = (1 / (1 + 0.25 * (dt_old + dt) ** 2) * (fp**2)) * (
             (1 - 0.25 * ((dt_old + dt) ** 2) * (fp**2)) * self.hu_north_old
@@ -125,28 +184,28 @@ class PoleTreatment:
 
         # south pole treatment
         h_south_new = self.h_south_old - (dt + dt_old) * 2 / (dxp * m_south * nx) * np.sum(
-            h[ib:ie, js+1] * v[ib:ie, js+1]
+            h[ib:ie, js + 1] * v[ib:ie, js + 1]
         )
         au = (
             -2
             / (dxp * m_south * nx)
             * np.sum(
-                h[ib:ie, js+1]
-                * (-u[ib:ie, js+1] * np.sin(phic[ib:ie]) + v[ib:ie, js+1] * np.cos(phic[ib:ie]))
-                * v[ib:ie, js+1]
+                h[ib:ie, js + 1]
+                * (-u[ib:ie, js + 1] * np.sin(phic[ib:ie]) + v[ib:ie, js + 1] * np.cos(phic[ib:ie]))
+                * v[ib:ie, js + 1]
             )
         )
-        bu = -self.g / (dxp * nx) * np.sum((h[ib:ie, js+1] ** 2) * np.cos(phic[ib:ie]))
+        bu = -self.g / (dxp * nx) * np.sum((h[ib:ie, js + 1] ** 2) * np.cos(phic[ib:ie]))
         av = (
             -2
             / (dxp * m_south * nx)
             * np.sum(
-                h[ib:ie, js+1]
-                * (u[ib:ie, js+1] * np.cos(phic[ib:ie]) + v[ib:ie, js+1] * np.sin(phic[ib:ie]))
-                * v[ib:ie, js+1]
+                h[ib:ie, js + 1]
+                * (u[ib:ie, js + 1] * np.cos(phic[ib:ie]) + v[ib:ie, js + 1] * np.sin(phic[ib:ie]))
+                * v[ib:ie, js + 1]
             )
         )
-        bv = -self.g / (dxp * nx) * np.sum((h[ib:ie, js+1] ** 2) * np.sin(phic[ib:ie]))
+        bv = -self.g / (dxp * nx) * np.sum((h[ib:ie, js + 1] ** 2) * np.sin(phic[ib:ie]))
         fp = state.grid.f[0, js]
         hu_south_new = (
             1
@@ -190,3 +249,10 @@ class PoleTreatment:
         self.hu_south = hu_south_new
         self.hv_north = hv_north_new
         self.hv_south = hv_south_new
+
+
+def get_pole_treatment(config: Config, state: State):
+    if config.advection_only:
+        return PoleTreatmentAdvectionOnly(config, state)
+    else:
+        return PoleTreatment(config, state)

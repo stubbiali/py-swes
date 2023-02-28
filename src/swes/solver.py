@@ -13,6 +13,70 @@ if TYPE_CHECKING:
 
 
 @stencil
+def advection(
+    in_c: GT_FIELD,
+    in_c_y: GT_FIELD,
+    in_dx: GT_FIELD,
+    in_dxc: GT_FIELD,
+    in_dy1: GT_FIELD,
+    in_dy1c: GT_FIELD,
+    in_h: GT_FIELD,
+    in_u: GT_FIELD,
+    in_u_x: GT_FIELD,
+    in_v: GT_FIELD,
+    in_v_y: GT_FIELD,
+    out_h: GT_FIELD,
+    *,
+    dt: float_type,
+):
+    with computation(FORWARD), interval(...):
+        h_x = 0.5 * (in_h[0, 0] + in_h[1, 0]) - 0.5 * dt / in_dx[0, 0] * (
+            in_h[1, 0] * in_u[1, 0] - in_h[0, 0] * in_u[0, 0]
+        )
+        h_y = 0.5 * (in_h[0, 0] + in_h[0, 1]) - 0.5 * dt / in_dy1[0, 0] * (
+            in_h[0, 1] * in_v[0, 1] * in_c[0, 1] - in_h[0, 0] * in_v[0, 0] * in_c[0, 0]
+        )
+        out_h[0, 0] = (
+            in_h[0, 0]
+            - dt / in_dxc[0, 0] * (h_x[0, 0, 0] * in_u_x[0, 0] - h_x[-1, 0, 0] * in_u_x[-1, 0])
+            - dt
+            / in_dy1c[0, 0]
+            * (
+                h_y[0, 0, 0] * in_v_y[0, 0] * in_c_y[0, 0]
+                - h_y[0, -1, 0] * in_v_y[0, -1] * in_c_y[0, -1]
+            )
+        )
+
+
+class LaxWendroffAdvectionOnly:
+    def __init__(self, grid: Grid) -> None:
+        # "centred" Cartesian increments
+        self.dxc = zeros(grid.ni, grid.nj)
+        self.dxc[1:-1, :] = 0.5 * (grid.dx[:-2, :] + grid.dx[1:-1, :])
+        self.dy1c = zeros(grid.ni, grid.nj)
+        self.dy1c[:, 1:-1] = 0.5 * (grid.dy1[:, :-2] + grid.dy1[:, 1:-1])
+
+    def __call__(self, state: State, dt: float_type) -> None:
+        advection(
+            in_c=state.grid.c,
+            in_c_y=state.grid.c_y,
+            in_dx=state.grid.dx,
+            in_dxc=self.dxc,
+            in_dy1=state.grid.dy1,
+            in_dy1c=self.dy1c,
+            in_h=state.h,
+            in_u=state.u,
+            in_u_x=state.u_x,
+            in_v=state.v,
+            in_v_y=state.v_y,
+            out_h=state.h_new,
+            dt=dt,
+            origin=(state.grid.hx, state.grid.hy + 1, 0),
+            domain=(state.grid.nx, state.grid.ny - 2, 1),
+        )
+
+
+@stencil
 def lax_wendroff(
     in_c: GT_FIELD,
     in_c_y: GT_FIELD,
@@ -235,3 +299,10 @@ class LaxWendroff:
             origin=(state.grid.hx, state.grid.hy + 1, 0),
             domain=(state.grid.nx, state.grid.ny - 2, 1),
         )
+
+
+def get_solver(config: Config, grid: Grid, orography: Orography):
+    if config.advection_only:
+        return LaxWendroffAdvectionOnly(grid)
+    else:
+        return LaxWendroff(config, grid, orography)

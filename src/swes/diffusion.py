@@ -125,3 +125,10 @@ class Diffusion:
             origin=(state.grid.hx, state.grid.hy + 1, 0),
             domain=(state.grid.nx, state.grid.ny - 2, 1)
         )
+
+
+def get_diffusion(config: Config, grid: Grid):
+    if config.enable_diffusion:
+        return Diffusion(config, grid)
+    else:
+        return None

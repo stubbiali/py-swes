@@ -50,6 +50,7 @@ class Config(BaseModel):
     initially_geostrophic: bool
 
     # solver settings
+    advection_only: bool = False
     enable_diffusion: bool
 
     # CFL number and integration time

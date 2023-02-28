@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from swes.config import UseCase
 from swes.halo import update_halo_points
-from swes.pole import PoleTreatment
+from swes.pole import get_pole_treatment
 from swes.state import State
 from swes.utils import to_numpy
 
@@ -67,6 +67,7 @@ def williamson_1(config: Config, state: State) -> None:
     state.u[...] = u0 * (
         np.cos(theta) * np.cos(alpha) + np.sin(theta) * np.cos(phi) * np.sin(alpha)
     )
+    state.u_new[...] = state.u
     state.u_x[:-1, :] = u0 * (
         np.cos(0.5 * (theta[:-1, :] + theta[1:, :])) * np.cos(alpha)
         + np.sin(0.5 * (theta[:-1, :] + theta[1:, :]))
@@ -81,6 +82,7 @@ def williamson_1(config: Config, state: State) -> None:
     )
 
     state.v[...] = -u0 * np.sin(phi) * np.sin(alpha)
+    state.v_new[...] = state.v
     state.v_x[:-1, :] = -u0 * np.sin(0.5 * (phi[:-1, :] + phi[1:, :])) * np.sin(alpha)
     state.v_y[:, :-1] = -u0 * np.sin(0.5 * (phi[:, :-1] + phi[:, 1:])) * np.sin(alpha)
 
@@ -212,7 +214,7 @@ def get_initial_state(
             state.u[...] = np.where(np.abs(u) > wmax, wmax * np.sign(u), u)
             state.v[...] = np.where(np.abs(v) > wmax, wmax * np.sign(v), v)
 
-    pole_treatment = PoleTreatment(config, state)
+    pole_treatment = get_pole_treatment(config, state)
     update_halo_points(state)
 
     return state, pole_treatment

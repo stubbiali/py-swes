@@ -27,9 +27,11 @@ class Grid:
         self.hy = config.hy
         self.dtheta = math.pi / (self.ny - 1)
         self.thetac = np.zeros(self.ny + 2 * self.hy)
-        self.thetac[self.hy : -self.hy] = np.linspace(-0.5 * math.pi, 0.5 * math.pi, self.ny)
+        self.thetac[self.hy : self.hy + self.ny] = np.linspace(
+            -0.5 * math.pi, 0.5 * math.pi, self.ny
+        )
         self.thetac[: self.hy] = self.thetac[self.hy + 1 : 2 * self.hy + 1][::-1]
-        self.thetac[-self.hy :] = self.thetac[-2 * self.hy - 1 : -self.hy - 1][::-1]
+        self.thetac[self.hy + self.ny :] = self.thetac[-2 * self.hy - 1 : -self.hy - 1][::-1]
 
         # storage shape
         self.ni = self.nx + 1 + 2 * self.hx

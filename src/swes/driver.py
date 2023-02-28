@@ -4,13 +4,13 @@ import numpy as np
 from typing import TYPE_CHECKING
 
 from swes.build_config import float_type
-from swes.diffusion import Diffusion
+from swes.diffusion import get_diffusion
 from swes.grid import Grid
 from swes.halo import update_halo_points
 from swes.initialization import get_initial_state
 from swes.orography import Orography
 from swes.output import NetCDFWriter
-from swes.solver import LaxWendroff
+from swes.solver import get_solver
 from swes.utils import get_time_string
 
 if TYPE_CHECKING:
@@ -24,11 +24,8 @@ class Driver:
 
         self.grid = Grid(config)
         self.orography = Orography(self.grid)
-        self.solver = LaxWendroff(config, self.grid, self.orography)
-        if config.enable_diffusion:
-            self.diffusion = Diffusion(config, self.grid)
-        else:
-            self.diffusion = None
+        self.solver = get_solver(config, self.grid, self.orography)
+        self.diffusion = get_diffusion(config, self.grid)
 
         hx, hy = self.grid.hx, self.grid.hy
         self.dx_min = np.min(self.grid.dx[hx : -hx - 1, hy + 1 : -hy - 1])
