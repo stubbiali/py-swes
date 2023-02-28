@@ -90,8 +90,9 @@ def main(
 if __name__ == "__main__":
     main(
         field_name="h",
-        dataset_name="../output/williamson-1/data_0.nc",
-        dataset_ref_name="../output/williamson-1/data_0.nc",
-        color_map="Reds",
+        dataset_name="../output/williamson-6/data_00010.nc",
+        dataset_ref_name="../output/williamson-6/data_00000.nc",
+        color_map="RdBu",
+        draw_colorbar=True,
     )
     plt.show()

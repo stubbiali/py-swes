@@ -26,5 +26,5 @@ enable_diffusion: True
 cfl: 0.9
 final_time: 1209600  # 14 days
 
-print_interval: 21600  # 6 hours
+print_interval: 3600  # 1 hour
 output_directory: ../output/williamson-6
