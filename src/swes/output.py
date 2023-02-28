@@ -21,7 +21,7 @@ class NetCDFWriter:
             nx, ny = state.grid.nx, state.grid.ny
             hx, hy = state.grid.hx, state.grid.hy
 
-            filename = os.path.join(self.output_directory, f"data_{self.counter}.nc")
+            filename = os.path.join(self.output_directory, f"data_{self.counter:05d}.nc")
             self.counter += 1
 
             with nc.Dataset(filename, mode="w") as ds:
