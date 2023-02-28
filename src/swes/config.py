@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-
-import os.path
-from enum import Enum
 import math
+import os
 from pydantic import Field, validator
 from ruamel.yaml import YAML
 from typing import Any, Literal, Optional
@@ -22,13 +20,6 @@ class PlanetConstants(BaseModel):
     omega: float_type_
     # atmosphere scale height [m]
     scale_height: float_type_
-
-
-class UseCase(Enum):
-    IDEALIZED_JET = "idealized_jet"
-    WILLIAMSON_1 = "williamnson_1"
-    WILLIAMSON_2 = "williamnson_2"
-    WILLIAMSON_6 = "williamnson_6"
 
 
 class Config(BaseModel):
