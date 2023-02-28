@@ -13,8 +13,8 @@ initially_geostrophic: False
 advection_only: True
 enable_diffusion: False
 
-cfl: 0.9
+cfl: 1.0
 final_time: 1036800  # 12 days
 
-print_interval: 21600  # 6 hours
+print_interval: 3600  # 1 hour
 output_directory: ../output/williamson-1
