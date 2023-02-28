@@ -1,3 +1,4 @@
+click
 gt4py[dace] == 1.0.0
 matplotlib
 netCDF4
